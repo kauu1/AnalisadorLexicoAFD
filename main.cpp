@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <fstream>
 #include <ostream>
@@ -38,7 +37,12 @@ int main(){
     
     char c;
     unsigned int line = 1;
-    std::cout << line;
+
+    unsigned int comment_open_line = 0;
+
+    //comment[0]: representa uma abertura de comentario
+    //comment[1]: representa o fechamento de comentario
+    //caso comment[0] != comment[1], o comentario nao foi fechado
 
     unsigned short int comment[2] = {0, 0};
 
@@ -87,12 +91,16 @@ int main(){
         }
 
         switch (current_state) { 
+
+            //estado 0: estado inicial
             case 0:
                 if (in_array(word, misc_chars)) current_state = 0;
 
                 else if (word.find('{')!=std::string::npos){ 
                     current_state = 1;
+                    comment_open_line = line;
                     ++comment[0];
+                    table << line << ' ' << "Comment Open\n";
                 }
 
                 else if (letters.find(word)!=std::string::npos) current_state = 2;
@@ -111,13 +119,16 @@ int main(){
                 
                 break;
 
+            //estado 1: comentário
             case 1:
                 if(word.back() == '}') {
                     current_state = 0;
                     ++comment[1];
+                    table << line << ' ' << "Comment Closed\n";
                 }
                 break;
-            
+
+            //estado 2: assim que se acaba de ler uma palavra, é verificado sé a palavra é uma palavra reservada, operadores lógicos ou indentificador
             case 2:
                 if(numbersletters.find(word.back())!=std::string::npos) current_state = 2;
 
@@ -143,6 +154,7 @@ int main(){
                 }
                 break;
 
+            //estado 3: se for lido '.', o automato vai para o estado 9
             case 3:
                 if (numbers.find(word.back())!=std::string::npos) current_state = 3;
 
@@ -156,6 +168,7 @@ int main(){
                 }
                 break;
             
+            //estado 4: ';', '.', '(', ')', ','
             case 4:
                 current_state = 0;
                 word.pop_back();
@@ -163,6 +176,7 @@ int main(){
                 table << line << ' ' << word << " delimiter\n";
                 break;
             
+            //estado 5: ele pega o proximo char para caso resulte em '<=', '>=' ou '<>', se nao ele volta um char do arquivo
             case 5:
                 current_state = 0;
                 program_template.get(c);
@@ -176,6 +190,7 @@ int main(){
                 }
                 break;
 
+            //estado 6: '+', '-'
             case 6:
                 current_state = 0;
                 word.pop_back();
@@ -183,6 +198,7 @@ int main(){
                 table << line << ' ' << word << " additive operator\n";
                 break;
             
+            //estado 7: '*', '/'
             case 7:
                 current_state = 0;
                 word.pop_back();
@@ -190,6 +206,7 @@ int main(){
                 table << line << ' ' << word << " multiplicative operator\n";
                 break;
             
+            //estado 8:  ':', ele pega o proximo char, caso seja um '=' ele considera uma atribuicao, caso nao, ele considera um delimitador
             case 8:
                 current_state = 0;
                 program_template.get(c);
@@ -201,9 +218,13 @@ int main(){
                 }else {
                     word.pop_back();
                     program_template.unget();
+                    word.pop_back();
+                    program_template.unget();
                     table << line << ' ' << word << " delimiter\n";
                 }
                 break;
+
+            //estado 9: float
 
             case 9:
                 if(numbers.find(word.back())!=std::string::npos){
@@ -217,15 +238,18 @@ int main(){
                 break;
         }
 
-        if(word.back() == '\n' && current_state==0){
+        //contador de linhas
+        if(word.back() == '\n'){
             ++line;
-            std::cout << line;
         }
     }
 
     if(comment[0]!=comment[1]){
-        std::cerr << "Erro: comment unclosed" << std::endl;
+        std::cerr << "Erro: comment unclosed in line  " << comment_open_line << std::endl;
     }
+
+    program_template.close();
+    table.close();
 
     return 0;
 }
