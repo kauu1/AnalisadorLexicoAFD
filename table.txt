@@ -1,0 +1,65 @@
+1 program key word 
+1 resultado indentifier 
+1 ; delimiter
+2 var key word 
+2 N1 indentifier 
+2 , delimiter
+2 N2 indentifier 
+2 , delimiter
+2 N3 indentifier 
+2 :  delimiter
+2 Real indentifier 
+2 ; delimiter
+3 S indentifier 
+3 , delimiter
+3 M indentifier 
+3 :  delimiter
+3 Real indentifier 
+3 ; delimiter
+4 Result indentifier 
+4 :  delimiter
+4 Boolean indentifier 
+4 ; delimiter
+5 begin key word 
+6 N1 indentifier 
+6 := atribution
+6 7.5 real
+6 ; delimiter
+7 N2 indentifier 
+7 := atribution
+7 5.5 real
+7 ; delimiter
+8 N3 indentifier 
+8 := atribution
+8 4.5 real
+8 ; delimiter
+9 S indentifier 
+9 := atribution
+9 N1 indentifier 
+9 + additive operator
+9 N2 indentifier 
+9 + additive operator
+9 N3 indentifier 
+9 ; delimiter
+10 M indentifier 
+10 := atribution
+10 S indentifier 
+10 / multiplicative operator
+10 3 integer
+10 ; delimiter
+11 if key word 
+11 ( delimiter
+11 M indentifier 
+11 >= relational operator
+11 5 integer
+11 ) delimiter
+11 Then indentifier 
+12 Result indentifier 
+12 := atribution
+12 True indentifier 
+13 else key word 
+14 Result indentifier 
+14 := atribution
+14 False indentifier 
+14 ; delimiter
+15 end key word 

@@ -1,5 +1,7 @@
+
 #include <iostream>
 #include <fstream>
+#include <ostream>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -10,7 +12,7 @@ bool in_array(const std::string &value, const std::vector<std::string> &array)
     return std::find(array.begin(), array.end(), value) != array.end();
 }
 
-int check_char(char c, int line, std::string alphabet){
+int check_char(char c, unsigned int line, std::string alphabet){
     if(alphabet.find(c)==std::string::npos){
         std::cerr << "Erro: " << c << "does not belong to the language alphabet" << std::endl;
         return 0;
@@ -24,7 +26,14 @@ int main(){
     program_template.open("program.txt", std::ifstream::in);
 
     if(program_template.is_open()){
-        std::cout << "Arquivo aberto com sucesso" << std::endl;
+        std::cout << "File opened successfully" << std::endl;
+    }
+
+    std::ofstream table;
+    table.open("table.txt", std::ofstream::out);
+
+    if(table.is_open()){
+        std::cout << "File created successfully" << std::endl;
     }
     
     char c;
@@ -34,10 +43,6 @@ int main(){
     unsigned short int comment[2] = {0, 0};
 
     unsigned short int erro_count = 0;
-
-    unsigned short int states[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-
-    unsigned short int accept_states[12] = {4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
     unsigned short int current_state = 0;
 
@@ -56,9 +61,9 @@ int main(){
 
     std::vector<std::string>relacional_operators2= {"<=", ">=", "<>"};
 
-    std::vector<std::string>additive_operators = {"+", "-", "or"};
+    std::vector<std::string>additive_operators = {"+", "-"};
 
-    std::vector<std::string>multiplicative_operators = {"*", "/", "and"}; 
+    std::vector<std::string>multiplicative_operators = {"*", "/"}; 
 
     std::string word = "\0";
 
@@ -69,15 +74,9 @@ int main(){
     std::string numbersletters = letters + numbers;
     
     while(program_template.get(c)){
-        std::cout << c;
 
         if(current_state == 0){
             word = "\0";
-        }
-
-        if(c == '\n'){
-            ++line;
-            std::cout << line;
         }
 
         if(check_char(c, line, alphabet)){
@@ -108,20 +107,120 @@ int main(){
                  
                 else if (in_array(word, multiplicative_operators)) current_state = 7;
 
-                else if (word.find(':')) current_state = 8;
+                else if (word.find(':')!=std::string::npos) current_state = 8;
+                
+                break;
 
             case 1:
                 if(word.back() == '}') {
                     current_state = 0;
                     ++comment[1];
                 }
+                break;
             
             case 2:
                 if(numbersletters.find(word.back())!=std::string::npos) current_state = 2;
-                else current_state = 0;
-        }
-    
 
+                else{ 
+                    current_state = 0;
+
+                    word.pop_back();
+
+                    if(in_array(word, key_words)){
+                        table << line << ' ' << word << " key word \n";
+
+                    }else if (word.find("and")!=std::string::npos) {
+                        table << line << ' ' << word << " multiplicative operator \n";
+
+                    }else if (word.find("or")!=std::string::npos) {
+                        table << line << ' ' << word << " additive operator \n";
+
+                    }else{
+                        table << line << ' ' << word << " indentifier \n";
+                    }
+
+                    program_template.unget();
+                }
+                break;
+
+            case 3:
+                if (numbers.find(word.back())!=std::string::npos) current_state = 3;
+
+                else if (word.find('.')!=std::string::npos) current_state = 9;
+
+                else{
+                    current_state = 0;
+                    word.pop_back();
+                    table << line << ' ' << word << " integer\n";
+                    program_template.unget();
+                }
+                break;
+            
+            case 4:
+                current_state = 0;
+                word.pop_back();
+                program_template.unget();
+                table << line << ' ' << word << " delimiter\n";
+                break;
+            
+            case 5:
+                current_state = 0;
+                program_template.get(c);
+                word += c;
+                if(in_array(word, relacional_operators2)){
+                    table << line << ' ' << word << " relational operator\n";
+                }else{
+                    word.pop_back();
+                    program_template.unget();
+                    table << line << ' ' << word << " relational operator\n";
+                }
+                break;
+
+            case 6:
+                current_state = 0;
+                word.pop_back();
+                program_template.unget();
+                table << line << ' ' << word << " additive operator\n";
+                break;
+            
+            case 7:
+                current_state = 0;
+                word.pop_back();
+                program_template.unget();
+                table << line << ' ' << word << " multiplicative operator\n";
+                break;
+            
+            case 8:
+                current_state = 0;
+                program_template.get(c);
+                word = word + c;
+                if(word.find(":=")!=std::string::npos){
+                    word.pop_back();
+                    program_template.unget();
+                    table << line << ' ' << word << " atribution\n"; 
+                }else {
+                    word.pop_back();
+                    program_template.unget();
+                    table << line << ' ' << word << " delimiter\n";
+                }
+                break;
+
+            case 9:
+                if(numbers.find(word.back())!=std::string::npos){
+                    current_state = 9;
+                }else {
+                    current_state = 0;
+                    word.pop_back();
+                    program_template.unget();
+                    table << line << ' ' << word << " real\n";
+                }
+                break;
+        }
+
+        if(word.back() == '\n' && current_state==0){
+            ++line;
+            std::cout << line;
+        }
     }
 
     if(comment[0]!=comment[1]){
