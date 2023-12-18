@@ -1,7 +1,7 @@
 program resultado;
-     var N1,N2,N3 : Real;
-             S, M : Real;
-       Result : Boolean;
+     var N1,N2,N3 : real;
+             S, M : real;
+       Result : boolean;
      begin
          N1:=7.5;
          N2:=5.5;

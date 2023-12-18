@@ -73,7 +73,7 @@ int main(){
 
     std::string numbers = "0123456789";
 
-    std::string letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    std::string letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 
     std::string numbersletters = letters + numbers;
     
@@ -138,7 +138,7 @@ int main(){
                     word.pop_back();
 
                     if(in_array(word, key_words)){
-                        table << line << ' ' << word << " key word \n";
+                        table << line << ' ' << word << " key_word \n";
 
                     }else if (word.find("and")!=std::string::npos) {
                         table << line << ' ' << word << " multiplicative operator \n";
@@ -233,7 +233,7 @@ int main(){
                     current_state = 0;
                     word.pop_back();
                     program_template.unget();
-                    table << line << ' ' << word << " real\n";
+                    table << line << ' ' << word << " float\n";
                 }
                 break;
         }
