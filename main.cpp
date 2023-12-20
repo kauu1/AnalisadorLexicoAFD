@@ -5,22 +5,26 @@
 #include <vector>
 #include <algorithm>
 
-
+//checa se um item pertence em uma lista
 bool in_array(const std::string &value, const std::vector<std::string> &array)
 {
     return std::find(array.begin(), array.end(), value) != array.end();
 }
 
+//checa se um char pertence a um alfabeto
 int check_char(char c, unsigned int line, std::string alphabet){
     if(alphabet.find(c)==std::string::npos){
-        std::cerr << "Erro: " << c << "does not belong to the language alphabet" << std::endl;
+        std::cerr << "Erro: '" << c << "' does not belong to the language alphabet in line: " << line << std::endl;
         return 0;
     }else{
         return 1;
     }
 }
 
+
 int main(){
+
+    //abertura do arquivo de leitura
     std::ifstream program_template;
     program_template.open("program.txt", std::ifstream::in);
 
@@ -28,6 +32,7 @@ int main(){
         std::cout << "File opened successfully" << std::endl;
     }
 
+    //abertura do arquivo de escrita da tabela
     std::ofstream table;
     table.open("table.txt", std::ofstream::out);
 
@@ -35,18 +40,19 @@ int main(){
         std::cout << "File created successfully" << std::endl;
     }
     
+    //a leitura sera feita caractere por caractere do arquivo de leitura
+    //esse caractere sera denominado "c"
     char c;
-    unsigned int line = 1;
 
-    unsigned int comment_open_line = 0;
+    unsigned int line = 1; //contador de linhas
+
+    unsigned int comment_open_line = 0; //linha que um comentario foi aberto
 
     //comment[0]: representa uma abertura de comentario
     //comment[1]: representa o fechamento de comentario
     //caso comment[0] != comment[1], o comentario nao foi fechado
 
     unsigned short int comment[2] = {0, 0};
-
-    unsigned short int erro_count = 0;
 
     unsigned short int current_state = 0;
 
@@ -77,16 +83,17 @@ int main(){
 
     std::string numbersletters = letters + numbers;
     
+    //cada caractere do arquivo sera lido e armazenado em "c" ate o EOF
     while(program_template.get(c)){
 
         if(current_state == 0){
             word = "\0";
         }
-
+        
+        //se um caractere existe no alfabeto e o estado do automato eh diferente de 0, ele sera adicionado a uma palavra
         if(check_char(c, line, alphabet)){
             word = word+c;
         }else {
-            ++erro_count;
             continue;
         }
 
