@@ -11,14 +11,30 @@ bool in_array(const std::string &value, const std::vector<std::string> &array)
     return std::find(array.begin(), array.end(), value) != array.end();
 }
 
-//checa se um char pertence a um alfabeto
-int check_char(char c, unsigned int line, std::string alphabet){
-    if(alphabet.find(c)==std::string::npos){
+//checa se um char pertence a um alfabeto (nesse caso tabela ASCII - &)
+int check_char(char c, unsigned int line, unsigned int current_state){
+
+    for(unsigned char cmp = 0; cmp < 255; cmp++){
+        if(cmp == 38){
+            continue;
+        }
+        if(c == cmp){
+            return 1;
+        }
+    }
+    if(current_state != 1){
         std::cerr << "Erro: '" << c << "' does not belong to the language alphabet in line: " << line << std::endl;
+    }
+    return 0;
+    /*
+    if(alphabet.find(c)==std::string::npos){
+        if(current_state != 1){
+            std::cerr << "Erro: '" << c << "' does not belong to the language alphabet in line: " << line << std::endl;
+        }
         return 0;
     }else{
         return 1;
-    }
+    }*/
 }
 
 
@@ -30,6 +46,9 @@ int main(){
 
     if(program_template.is_open()){
         std::cout << "File opened successfully" << std::endl;
+    }else{
+        std::cerr << "Cound not find suitable file" << std::endl;
+        return -1;
     }
 
     //abertura do arquivo de escrita da tabela
@@ -63,7 +82,7 @@ int main(){
 
     std::vector<std::string>delimiters = {";", ".", "(", ")", ","};
 
-    std::string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 \t\n{}();:.(),=<>+-*/";
+    //std::string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 \t\n{}();:.(),=<>+-*/";
 
     std::string atribution = ":=";
 
@@ -91,9 +110,9 @@ int main(){
         }
         
         //se um caractere existe no alfabeto e o estado do automato eh diferente de 0, ele sera adicionado a uma palavra
-        if(check_char(c, line, alphabet)){
+        if(check_char(c, line, current_state)){
             word = word+c;
-        }else {
+        }else { 
             continue;
         }
 
@@ -253,6 +272,10 @@ int main(){
 
     if(comment[0]!=comment[1]){
         std::cerr << "Erro: comment unclosed in line  " << comment_open_line << std::endl;
+    }
+
+    if(c == '.'){
+        table << line << " . delimiter\n";
     }
 
     program_template.close();

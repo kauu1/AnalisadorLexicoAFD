@@ -11,5 +11,5 @@ program resultado;
          if(M>=5)Then
              Result:=True
          else
-             Result:=False;
-     end.
+    Result:=False;
+    end.
